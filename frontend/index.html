@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graduation Gateway</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- ═══════════════ AUTH OVERLAY ═══════════════ -->
+    <div
+      id="authOverlay"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: var(--bg);
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        padding: 20px 0;
+      "
+    >
+      <div
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 36px 40px;
+          width: 420px;
+          max-width: 94vw;
+          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+          margin: auto;
+        "
+      >
+        <div style="text-align: center; margin-bottom: 24px">
+          <div style="font-size: 28px; margin-bottom: 6px">🎓</div>
+          <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.5px">Graduation <span style="color: var(--green)">Gateway</span></div>
+          <div style="font-size: 12px; color: var(--text-3); font-family: 'Geist Mono', monospace; margin-top: 3px">Graduation Project Generator</div>
+        </div>
+        <!-- Role Selector -->
+        <div id="roleSelector" style="margin-bottom: 22px">
+          <div
+            style="
+              font-size: 11px;
+              font-weight: 600;
+              color: var(--text-3);
+              margin-bottom: 10px;
+              text-align: center;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+            "
+          >
+            I am a
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+            <div
+              id="roleStudent"
+              onclick="selectRole('student')"
+              style="
+                border: 2px solid var(--green);
+                border-radius: 10px;
+                padding: 14px 10px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                background: color-mix(in srgb, var(--green) 8%, transparent);
+              "
+            >
+              <div style="font-size: 13px; font-weight: 600">Student</div>
+              <div style="font-size: 11px; color: var(--text-3); margin-top: 2px">Generate projects</div>
+            </div>
+            <div
+              id="roleSupervisor"
+              onclick="selectRole('supervisor')"
+              style="
+                border: 2px solid var(--border);
+                border-radius: 10px;
+                padding: 14px 10px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+              "
+            >
+              <div style="font-size: 13px; font-weight: 600">Supervisor</div>
+              <div style="font-size: 11px; color: var(--text-3); margin-top: 2px">Review students</div>
+            </div>
+          </div>
+        </div>
+        <!-- Auth Tabs -->
+        <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px">
+          <div class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Sign In</div>
+          <div class="auth-tab" data-tab="register" id="registerTabBtn" onclick="switchAuthTab('register')">Create Account</div>
+        </div>
+        <!-- Student Login Form -->
+        <div id="loginForm">
+          <div style="margin-bottom: 14px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Email</label>
+            <input
+              id="loginEmail"
+              type="email"
+              class="form-input"
+              placeholder="you@university.edu"
+              style="width: 100%"
+              onkeydown="if(event.key==='Enter')authLogin()"
+            />
+          </div>
+          <div style="margin-bottom: 20px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Password</label>
+            <input
+              id="loginPassword"
+              type="password"
+              class="form-input"
+              placeholder="••••••••"
+              style="width: 100%"
+              onkeydown="if(event.key==='Enter')authLogin()"
+            />
+          </div>
+          <div id="loginError" style="font-size: 12px; color: #b91c1c; margin-bottom: 12px; min-height: 16px"></div>
+          <button id="loginBtn" class="btn btn-solid" style="width: 100%; justify-content: center; padding: 11px" onclick="authLogin()">
+            Sign In as Student
+          </button>
+          <div style="text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-3)">
+            No account? <span style="color: var(--text); cursor: pointer; font-weight: 500" onclick="switchAuthTab('register')">Sign up free →</span>
+          </div>
+        </div>
+        <div id="registerForm" style="display: none">
+          <div style="margin-bottom: 12px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Full Name</label>
+            <input id="regName" type="text" class="form-input" placeholder="Ahmed Mohamed" style="width: 100%" />
+          </div>
+          <div style="margin-bottom: 12px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Email</label>
+            <input id="regEmail" type="email" class="form-input" placeholder="you@university.edu" style="width: 100%" />
+          </div>
+          <div style="margin-bottom: 12px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Major</label>
+            <select id="regMajor" class="form-select" style="width: 100%">
+              <option>Computer Science</option>
+              <option>Data Science &amp; AI</option>
+              <option>Software Engineering</option>
+              <option>Electrical Engineering</option>
+              <option>Biomedical Engineering</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 12px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">
+              Supervisor <span style="color: var(--text-3); font-weight: 400">(optional)</span>
+            </label>
+            <select id="regSupervisor" class="form-select" style="width: 100%">
+              <option value="">— Select your supervisor —</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-3); margin-top: 4px">You'll appear in your supervisor's student list automatically.</div>
+          </div>
+          <div style="margin-bottom: 20px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Password</label>
+            <input id="regPassword" type="password" class="form-input" placeholder="Min. 6 characters" style="width: 100%" />
+          </div>
+          <div id="registerError" style="font-size: 12px; color: #b91c1c; margin-bottom: 12px; min-height: 16px"></div>
+          <button id="registerBtn" class="btn btn-solid" style="width: 100%; justify-content: center; padding: 11px" onclick="authRegister()">
+            Create Student Account
+          </button>
+          <div style="text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-3)">
+            Have account? <span style="color: var(--text); cursor: pointer; font-weight: 500" onclick="switchAuthTab('login')">Sign in →</span>
+          </div>
+        </div>
+
+        <!-- ── SUPERVISOR LOGIN FORM ── -->
+        <div id="supLoginForm" style="display: none">
+          <div style="margin-bottom: 14px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Email</label>
+            <input
+              id="supLoginEmail"
+              type="email"
+              class="form-input"
+              placeholder="supervisor@university.edu"
+              style="width: 100%"
+              onkeydown="if(event.key==='Enter')authSupervisorLogin()"
+            />
+          </div>
+          <div style="margin-bottom: 20px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Password</label>
+            <input
+              id="supLoginPassword"
+              type="password"
+              class="form-input"
+              placeholder="••••••••"
+              style="width: 100%"
+              onkeydown="if(event.key==='Enter')authSupervisorLogin()"
+            />
+          </div>
+          <div id="supLoginError" style="font-size: 12px; color: #b91c1c; margin-bottom: 12px; min-height: 16px"></div>
+          <button id="supLoginBtn" class="btn btn-solid" style="width: 100%; justify-content: center; padding: 11px" onclick="authSupervisorLogin()">
+            Sign In as Supervisor
+          </button>
+          <div style="text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-3)">
+            No account? <span style="color: var(--text); cursor: pointer; font-weight: 500" onclick="switchAuthTab('register')">Sign up free →</span>
+          </div>
+        </div>
+
+        <!-- ── SUPERVISOR REGISTER FORM ── -->
+        <div id="supRegisterForm" style="display: none">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px">
+            <div>
+              <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Full Name</label>
+              <input id="supRegName" type="text" class="form-input" placeholder="Dr. Ahmed" style="width: 100%" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Title</label>
+              <select id="supRegTitle" class="form-select" style="width: 100%">
+                <option>Dr.</option>
+                <option>Prof.</option>
+                <option>Eng.</option>
+                <option>Mr.</option>
+                <option>Ms.</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom: 12px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Email</label>
+            <input id="supRegEmail" type="email" class="form-input" placeholder="supervisor@university.edu" style="width: 100%" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px">
+            <div>
+              <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Department</label>
+              <input id="supRegDept" type="text" class="form-input" placeholder="Computer Science" style="width: 100%" />
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">University</label>
+              <input id="supRegUniv" type="text" class="form-input" placeholder="AOU" style="width: 100%" />
+            </div>
+          </div>
+          <div style="margin-bottom: 20px">
+            <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Password</label>
+            <input id="supRegPassword" type="password" class="form-input" placeholder="Min. 6 characters" style="width: 100%" />
+          </div>
+          <div id="supRegisterError" style="font-size: 12px; color: #b91c1c; margin-bottom: 12px; min-height: 16px"></div>
+          <button
+            id="supRegisterBtn"
+            class="btn btn-solid"
+            style="width: 100%; justify-content: center; padding: 11px"
+            onclick="authSupervisorRegister()"
+          >
+            Create Supervisor Account
+          </button>
+          <div style="text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-3)">
+            Have account? <span style="color: var(--text); cursor: pointer; font-weight: 500" onclick="switchAuthTab('login')">Sign in →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="shell" class="shell">
+      <!-- ═══════════════ SIDEBAR ═══════════════ -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-row">
+            <div class="logo-icon">🎓</div>
+            <div>
+              <div class="logo-name">Graduation <span>Gateway</span></div>
+              <div class="logo-ver" id="logoVer">v2.4 · Free Plan</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-block">
+          <div class="nav-label">Main</div>
+          <div class="nav-item active" data-screen="dashboard" onclick="nav(this)"><span class="nav-icon">⊞</span> Dashboard</div>
+          <div class="nav-item" data-screen="generate" onclick="nav(this)">
+            <span class="nav-icon">✦</span> Generate Project<span class="nav-badge">New</span>
+          </div>
+          <div class="nav-item" data-screen="projects" onclick="nav(this)"><span class="nav-icon">◫</span> My Projects</div>
+          <div class="nav-item" data-screen="browse" onclick="nav(this)"><span class="nav-icon">◎</span> Browse Ideas</div>
+        </div>
+        <div class="nav-block">
+          <div class="nav-label">Tools</div>
+          <div class="nav-item" data-screen="advisor" onclick="nav(this)"><span class="nav-icon">◈</span> AI Advisor</div>
+          <div class="nav-item" data-screen="roadmap" onclick="nav(this)"><span class="nav-icon">↗</span> Roadmap Builder</div>
+        </div>
+        <div class="nav-block">
+          <div class="nav-label">Account</div>
+          <div class="nav-item" data-screen="settings" onclick="nav(this)"><span class="nav-icon">⊛</span> Settings</div>
+          <div class="nav-item" data-screen="profile" onclick="nav(this)"><span class="nav-icon">◉</span> Profile</div>
+        </div>
+        <div class="sidebar-footer">
+          <div class="user-row" onclick="nav(document.querySelector('[data-screen=profile]'))">
+            <div class="avatar" id="sidebarAvatar">—</div>
+            <div>
+              <div class="user-name" id="sidebarName">—</div>
+              <div class="user-plan" id="sidebarPlan">Free Plan</div>
+            </div>
+            <div class="user-arrow" onclick="event.stopPropagation();logout()" title="Sign out" style="cursor: pointer">⇥</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ═══════════════ MAIN ═══════════════ -->
+      <div class="main">
+        <!-- ████████ DASHBOARD ████████ -->
+        <div class="screen active" id="screen-dashboard">
+          <div class="topbar">
+            <div class="topbar-title">Project <em>Dashboard</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-solid" onclick="nav(document.querySelector('[data-screen=generate]'))">✦ New Generation</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="grid-4" style="margin-bottom: 20px">
+              <div class="stat-card">
+                <div class="stat-label">◫ Generated</div>
+                <div class="stat-val" id="statGenerated">—</div>
+                <div class="stat-change up">total projects</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">✓ Completed</div>
+                <div class="stat-val" id="statDone">—</div>
+                <div class="stat-change up">done</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">◎ Quality Score</div>
+                <div class="stat-val" id="statScore">—</div>
+                <div class="stat-change up">avg score</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">⟳ Active</div>
+                <div class="stat-val" id="statActive">—</div>
+                <div class="stat-change up">in progress</div>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 20px">
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Recent Projects
+                  </div>
+                  <a class="see-all" onclick="nav(document.querySelector('[data-screen=projects]'))">View all →</a>
+                </div>
+                <table class="table" id="dashRecentTable">
+                  <tr>
+                    <th>Project</th>
+                    <th>Field</th>
+                    <th>Status</th>
+                  </tr>
+                  <tr>
+                    <td colspan="3" style="text-align: center; padding: 30px; color: var(--text-3)">Loading…</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Roadmap Progress
+                  </div>
+                  <span class="see-all" onclick="nav(document.querySelector('[data-screen=roadmap]'))">Open →</span>
+                </div>
+                <div style="padding: 20px">
+                  <div class="tl-list" id="dashRoadmap">
+                    <div class="tl-item">
+                      <div class="tl-dot todo"></div>
+                      <div>
+                        <div class="tl-title tl-muted">No roadmap yet</div>
+                        <div class="tl-desc">Generate a project first</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-amber"></div>
+                    Topics Breakdown
+                  </div>
+                </div>
+                <div id="fieldBreakdown" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 14px">
+                  <div style="color: var(--text-3); font-size: 13px">Generate projects to see breakdown.</div>
+                </div>
+              </div>
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Activity Feed
+                  </div>
+                </div>
+                <div id="activityFeed">
+                  <div style="padding: 20px; color: var(--text-3); font-size: 13px; text-align: center">No activity yet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ████████ GENERATE ████████ -->
+        <div class="screen" id="screen-generate">
+          <div class="topbar">
+            <div class="topbar-title">✦ <em>Generate</em> Project</div>
+            <div class="topbar-actions">
+              <button class="btn btn-solid" onclick="triggerGenerate()">✦ Generate Now</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="page-hero">
+              <div class="page-eyebrow">AI-Powered · Groq LLaMA · Live</div>
+              <div class="page-heading">Craft Your <em>Perfect Project</em></div>
+              <div class="page-sub">
+                Fill in the details and let Graduation Gateway generate a complete, supervisor-ready project proposal tailored to your field.
+              </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 20px">
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Project Parameters
+                  </div>
+                </div>
+                <div style="padding: 20px">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Major / Field</label>
+                      <select id="genField" class="form-select">
+                        <option>Computer Science</option>
+                        <option>Data Science &amp; AI</option>
+                        <option>Software Engineering</option>
+                        <option>Electrical Engineering</option>
+                        <option>Biomedical Engineering</option>
+                        <option>Business &amp; Technology</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Degree Level</label>
+                      <select id="genDegree" class="form-select">
+                        <option>Undergraduate (Bachelor)</option>
+                        <option>Postgraduate (Master)</option>
+                        <option>PhD Research</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Timeline</label>
+                      <select id="genTimeline" class="form-select">
+                        <option>1 Semester</option>
+                        <option>2 Semesters</option>
+                        <option>Full Year</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Team Size</label>
+                      <select id="genTeam" class="form-select">
+                        <option>Solo (1 person)</option>
+                        <option>Small (2–3 people)</option>
+                        <option>Medium (4–5 people)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 14px">
+                    <label class="form-label">Your Interests &amp; Ideas</label>
+                    <textarea
+                      id="genInterests"
+                      class="form-textarea"
+                      style="min-height: 100px"
+                      placeholder="e.g. I want to build something using machine learning that helps healthcare…"
+                    ></textarea>
+                  </div>
+                  <div style="margin-bottom: 16px">
+                    <div class="form-label" style="margin-bottom: 8px">Focus Area Tags</div>
+                    <div style="display: flex; gap: 7px; flex-wrap: wrap" id="genTags">
+                      <span class="tag active" onclick="this.classList.toggle('active')">AI / ML</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">Web Dev</span>
+                      <span class="tag tag-amber" onclick="this.classList.toggle('active')">Research</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">Mobile</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">Cloud</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">Security</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">IoT</span>
+                      <span class="tag" onclick="this.classList.toggle('active')">NLP</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between">
+                    <div class="ai-loading" id="genLoading">
+                      <div class="loader-dots"><span></span><span></span><span></span></div>
+                      Generating your project…
+                    </div>
+                    <button class="btn btn-green" style="font-size: 14px; padding: 10px 22px" onclick="triggerGenerate()">✦ Generate Project</button>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-amber"></div>
+                      Recent Generations
+                    </div>
+                  </div>
+                  <div id="recentGenerations">
+                    <div style="padding: 20px; color: var(--text-3); font-size: 13px; text-align: center">No generations yet.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="genResult"></div>
+          </div>
+        </div>
+
+        <!-- ████████ MY PROJECTS ████████ -->
+        <div class="screen" id="screen-projects">
+          <div class="topbar">
+            <div class="topbar-title">◫ My <em>Projects</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-solid" onclick="nav(document.querySelector('[data-screen=generate]'))">+ New Project</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input id="projectSearch" placeholder="Search projects…" oninput="searchProjects(this.value)" />
+            </div>
+            <div id="projectFilters" style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap">
+              <span class="tag active" onclick="filterProjects(this,'')">All (0)</span>
+            </div>
+            <div class="section-card">
+              <table class="table" id="projectsTable">
+                <tr>
+                  <th>Project Title</th>
+                  <th>Field</th>
+                  <th>Level</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-3)">Loading…</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ████████ BROWSE IDEAS ████████ -->
+        <div class="screen" id="screen-browse">
+          <div class="topbar">
+            <div class="topbar-title">◎ Browse <em>Ideas</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-outline" onclick="nav(document.querySelector('[data-screen=generate]'))">⊕ Generate Custom</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="page-hero">
+              <div class="page-eyebrow">Curated · Multiple Fields</div>
+              <div class="page-heading">Explore Project <em>Ideas</em></div>
+              <div class="page-sub">Browse curated graduation project ideas. Click any card to instantly generate a full proposal.</div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap" id="browseFilters">
+              <span class="tag active" onclick="filterBrowse(this,'all')">All</span>
+              <span class="tag" onclick="filterBrowse(this,'ai')">🤖 AI/ML</span>
+              <span class="tag" onclick="filterBrowse(this,'web')">🌐 Web</span>
+              <span class="tag" onclick="filterBrowse(this,'health')">🏥 Health</span>
+              <span class="tag" onclick="filterBrowse(this,'security')">🔐 Security</span>
+              <span class="tag" onclick="filterBrowse(this,'iot')">📡 IoT</span>
+              <span class="tag" onclick="filterBrowse(this,'nlp')">💬 NLP</span>
+            </div>
+            <div class="card-grid" id="browseGrid"></div>
+          </div>
+        </div>
+
+        <!-- ████████ AI ADVISOR ████████ -->
+        <div class="screen" id="screen-advisor">
+          <div class="topbar">
+            <div class="topbar-title">◈ AI <em>Advisor</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-outline" onclick="clearChat()">🗑 Clear Chat</button>
+            </div>
+          </div>
+          <div class="chat-wrap">
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg ai">
+                <div class="avatar av-green" style="flex-shrink: 0">AI</div>
+                <div>
+                  <div class="msg-bubble">
+                    Hello! I'm your Graduation Gateway Advisor. I can help you with brainstorming ideas, writing proposals, planning your roadmap, or
+                    any academic questions. What would you like to work on?
+                  </div>
+                  <div class="msg-time">Now</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <textarea
+                class="chat-textarea"
+                id="chatInput"
+                placeholder="Ask about your project, proposal writing, methodology…"
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+              ></textarea>
+              <button class="btn btn-solid" onclick="sendChat()">↑ Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ████████ ROADMAP BUILDER ████████ -->
+        <div class="screen" id="screen-roadmap">
+          <div class="topbar">
+            <div class="topbar-title">↗ Roadmap <em>Builder</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-outline" onclick="copyRoadmap()">📋 Copy</button>
+              <button id="roadmapGenerateBtn" class="btn btn-solid" onclick="generateRoadmap()">↗ Generate Roadmap</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="page-hero">
+              <div class="page-eyebrow">AI-Powered · Phase-by-Phase</div>
+              <div class="page-heading">Build Your <em>Project Roadmap</em></div>
+              <div class="page-sub">
+                Select an existing project or enter a custom title. Graduation Gateway will generate a detailed roadmap with tasks, milestones, and
+                risk analysis.
+              </div>
+            </div>
+
+            <div class="section-card" style="margin-bottom: 20px">
+              <div class="section-head">
+                <div class="section-title">
+                  <div class="tdot tdot-dark"></div>
+                  Roadmap Settings
+                </div>
+              </div>
+              <div style="padding: 20px; display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end">
+                <div class="form-group" style="flex: 2; min-width: 200px; margin: 0">
+                  <label class="form-label">Select Existing Project</label>
+                  <select id="roadmapProjectSelect" class="form-select" onchange="onRoadmapProjectChange()">
+                    <option value="">— Custom Project —</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 2; min-width: 180px; margin: 0">
+                  <label class="form-label">Custom Title (if no project)</label>
+                  <input id="roadmapTitle" class="form-input" placeholder="e.g. Smart Traffic System" />
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 130px; margin: 0">
+                  <label class="form-label">Timeline</label>
+                  <select id="roadmapTimeline" class="form-select">
+                    <option>3 months</option>
+                    <option selected>6 months</option>
+                    <option>9 months</option>
+                    <option>1 year</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px; margin: 0">
+                  <label class="form-label">Team Size</label>
+                  <select id="roadmapTeam" class="form-select">
+                    <option value="1">Solo</option>
+                    <option value="2-3">2–3 people</option>
+                    <option value="4-5">4–5 people</option>
+                  </select>
+                </div>
+                <button class="btn btn-green" style="padding: 10px 22px; align-self: flex-end; white-space: nowrap" onclick="generateRoadmap()">
+                  ↗ Generate
+                </button>
+              </div>
+            </div>
+
+            <div class="grid-4" style="margin-bottom: 20px">
+              <div class="stat-card">
+                <div class="stat-label">📅 Total Weeks</div>
+                <div class="stat-val" id="rmTotalWeeks">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">📋 Phases</div>
+                <div class="stat-val" id="rmPhases">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">🎯 Milestones</div>
+                <div class="stat-val" id="rmMilestones">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">⚠ Risks</div>
+                <div class="stat-val" id="rmRisks">—</div>
+              </div>
+            </div>
+
+            <div id="roadmapLoading" style="display: none; padding: 60px; text-align: center; color: var(--text-3)">
+              <div class="loader-dots" style="justify-content: center; margin-bottom: 14px"><span></span><span></span><span></span></div>
+              <div style="font-size: 14px; margin-top: 8px">AI is building your roadmap…</div>
+            </div>
+
+            <div id="roadmapContent" style="display: none">
+              <div class="section-card" style="margin-bottom: 20px">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Project Phases
+                  </div>
+                  <span class="see-all" id="roadmapProjectTitle" style="font-family: 'Geist Mono', monospace; font-size: 11px"></span>
+                </div>
+                <div style="padding: 20px">
+                  <div class="tl-list" id="roadmapPhases"></div>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-amber"></div>
+                      Key Milestones
+                    </div>
+                  </div>
+                  <table class="table" id="roadmapMilestonesTable">
+                    <tr>
+                      <th>Week</th>
+                      <th>Milestone</th>
+                      <th>Description</th>
+                    </tr>
+                  </table>
+                </div>
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-dark"></div>
+                      Risk Factors
+                    </div>
+                  </div>
+                  <div id="roadmapRisks" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="roadmapEmpty">
+              <div class="section-card">
+                <div style="padding: 60px; text-align: center; color: var(--text-3)">
+                  <div style="font-size: 40px; margin-bottom: 12px">↗</div>
+                  <div style="font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text-2)">No Roadmap Yet</div>
+                  <div style="font-size: 13px">Select a project above or enter a custom title, then click Generate.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ████████ SETTINGS ████████ -->
+        <div class="screen" id="screen-settings">
+          <div class="topbar">
+            <div class="topbar-title">⊛ <em>Settings</em></div>
+            <div class="topbar-actions">
+              <button class="btn btn-solid" onclick="showToast('Settings saved.')">Save Changes</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="grid-2">
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-dark"></div>
+                      AI Preferences
+                    </div>
+                  </div>
+                  <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+                    <div class="form-group">
+                      <label class="form-label">Default Field</label>
+                      <select class="form-select">
+                        <option>Computer Science</option>
+                        <option>Data Science &amp; AI</option>
+                        <option>Software Engineering</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Default Degree Level</label>
+                      <select class="form-select">
+                        <option>Undergraduate (Bachelor)</option>
+                        <option>Postgraduate (Master)</option>
+                        <option>PhD Research</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Output Language</label>
+                      <select class="form-select">
+                        <option>English</option>
+                        <option>Arabic</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-green"></div>
+                      Notifications
+                    </div>
+                  </div>
+                  <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13.5px"
+                      ><input type="checkbox" checked style="accent-color: var(--text)" /> Email on generation complete</label
+                    >
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13.5px"
+                      ><input type="checkbox" checked style="accent-color: var(--text)" /> Weekly project summary</label
+                    >
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13.5px"
+                      ><input type="checkbox" style="accent-color: var(--text)" /> New feature announcements</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-amber"></div>
+                      Usage &amp; Plan
+                    </div>
+                  </div>
+                  <div style="padding: 20px">
+                    <div style="margin-bottom: 14px">
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 5px">
+                        <span style="font-size: 13px; font-weight: 500">Generations Used</span>
+                        <span id="settingsGenUsed" style="font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--text-3)">— / —</span>
+                      </div>
+                      <div class="progress-bar"><div id="settingsGenBar" class="progress-fill pf-dark" style="width: 0%"></div></div>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 3px" id="settingsPlan">Free Plan</div>
+                    <div style="font-size: 12px; color: var(--text-2); margin-bottom: 14px">Upgrade to Pro for unlimited generations.</div>
+                    <button class="btn btn-solid" style="width: 100%; justify-content: center" onclick="showToast('Upgrade feature coming soon.')">
+                      Upgrade to Pro →
+                    </button>
+                  </div>
+                </div>
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-dark"></div>
+                      Danger Zone
+                    </div>
+                  </div>
+                  <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px">
+                    <button class="btn btn-outline" style="color: #b91c1c; border-color: #fca5a5; justify-content: center" onclick="logout()">
+                      ⇥ Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ████████ PROFILE ████████ -->
+        <div class="screen" id="screen-profile">
+          <div class="topbar">
+            <div class="topbar-title">◉ My <em>Profile</em></div>
+            <div class="topbar-actions">
+              <button id="saveProfileBtn" class="btn btn-solid" onclick="saveProfile()">Save Profile</button>
+            </div>
+          </div>
+          <div class="content">
+            <div class="profile-header">
+              <div class="profile-avatar" id="profileAvatar">—</div>
+              <div>
+                <div class="profile-name" id="profileName">—</div>
+                <div class="profile-meta" id="profileMeta">—</div>
+                <div style="margin-top: 10px; display: flex; gap: 8px">
+                  <span class="badge badge-green" id="profilePlanBadge">Free Plan</span>
+                  <span class="badge badge-blue" id="profileMajorBadge">—</span>
+                </div>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 20px">
+              <div class="section-card">
+                <div class="section-head">
+                  <div class="section-title">
+                    <div class="tdot tdot-dark"></div>
+                    Personal Information
+                  </div>
+                </div>
+                <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+                  <div class="form-row" style="margin: 0">
+                    <div class="form-group">
+                      <label class="form-label">First Name</label>
+                      <input id="profileFirstName" class="form-input" placeholder="First name" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Last Name</label>
+                      <input id="profileLastName" class="form-input" placeholder="Last name" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input id="profileEmail" class="form-input" readonly style="opacity: 0.65" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">University</label>
+                    <input id="profileUniversity" class="form-input" placeholder="Your university" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Major</label>
+                    <select id="profileMajorSelect" class="form-select">
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Data Science &amp; AI">Data Science &amp; AI</option>
+                      <option value="Software Engineering">Software Engineering</option>
+                      <option value="Electrical Engineering">Electrical Engineering</option>
+                      <option value="Biomedical Engineering">Biomedical Engineering</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Supervisor</label>
+                    <input id="profileSupervisor" class="form-input" readonly />
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-green"></div>
+                      Usage Stats
+                    </div>
+                  </div>
+                  <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 5px">
+                        <span style="font-size: 13px; font-weight: 500">Generations Used</span>
+                        <span id="profileGenUsed" style="font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--text-3)">— / —</span>
+                      </div>
+                      <div class="progress-bar"><div id="profileGenBar" class="progress-fill pf-dark" style="width: 0%"></div></div>
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 5px">
+                        <span style="font-size: 13px; font-weight: 500">Projects Created</span>
+                        <span id="profileProjectCount" style="font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--text-3)">0</span>
+                      </div>
+                      <div class="progress-bar"><div id="profileProjectBar" class="progress-fill pf-green" style="width: 0%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="section-card">
+                  <div class="section-head">
+                    <div class="section-title">
+                      <div class="tdot tdot-amber"></div>
+                      Account Actions
+                    </div>
+                  </div>
+                  <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px">
+                    <button class="btn btn-outline" style="justify-content: center" onclick="showToast('Feature coming soon.')">
+                      🔑 Change Password
+                    </button>
+                    <button class="btn btn-outline" style="justify-content: center; color: #b91c1c; border-color: #fca5a5" onclick="logout()">
+                      ⇥ Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /shell -->
+
+    <script src="./app.js"></script>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  SUPERVISOR SHELL  (hidden until sup logs in)      -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div id="supShell" style="display: none; height: 100vh; flex-direction: row; overflow: hidden">
+      <!-- Sidebar -->
+      <aside
+        style="
+          width: 220px;
+          min-width: 220px;
+          border-right: 1px solid var(--border);
+          background: var(--surface);
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+          overflow-y: auto;
+        "
+      >
+        <div style="padding: 20px 20px 0">
+          <div style="font-size: 15px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px">
+            Graduation <span style="color: #3d6b4f">Gateway</span>
+          </div>
+          <div style="font-size: 10px; font-family: 'Geist Mono', monospace; color: var(--text-3)">Supervisor Portal</div>
+        </div>
+        <nav style="flex: 1; padding: 16px 10px">
+          <div
+            style="
+              font-size: 10px;
+              font-weight: 600;
+              color: var(--text-3);
+              padding: 0 10px;
+              margin: 12px 0 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+            "
+          >
+            Dashboard
+          </div>
+          <a class="sup-nav-item sup-nav-active" onclick="supNav('supScreenDash',this)"> <span>⊞</span> Overview </a>
+          <div
+            style="
+              font-size: 10px;
+              font-weight: 600;
+              color: var(--text-3);
+              padding: 0 10px;
+              margin: 16px 0 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+            "
+          >
+            Students
+          </div>
+          <a class="sup-nav-item" onclick="supNav('supScreenStudents',this)"> <span>◉</span> My Students </a>
+          <a class="sup-nav-item" onclick="supNav('supScreenReviews',this)"> <span>◉</span> Reviews </a>
+          <div
+            style="
+              font-size: 10px;
+              font-weight: 600;
+              color: var(--text-3);
+              padding: 0 10px;
+              margin: 16px 0 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+            "
+          >
+            Account
+          </div>
+          <a class="sup-nav-item" onclick="supNav('supScreenProfile',this)"> <span>◉</span> Profile </a>
+        </nav>
+        <div style="padding: 16px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px">
+          <div class="avatar" style="background: #1a1814" id="supSidebarAvatar">SV</div>
+          <div style="flex: 1; min-width: 0">
+            <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" id="supSidebarName">
+              Supervisor
+            </div>
+            <div style="font-size: 11px; color: var(--text-3)">Supervisor</div>
+          </div>
+          <button
+            onclick="logout()"
+            title="Logout"
+            style="background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-3); padding: 4px"
+          >
+            ⇥
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main style="flex: 1; overflow-y: auto; background: var(--bg)">
+        <!-- ─── OVERVIEW ─── -->
+        <div id="supScreenDash" class="sup-screen">
+          <div style="padding: 28px 32px 0">
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px">
+              Welcome back <span id="supWelcomeName" style="color: #3d6b4f">Supervisor</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-3)">Here's an overview of your students' progress</div>
+          </div>
+          <div style="padding: 24px 32px">
+            <!-- Stats row -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px">
+              <div class="section-card" style="padding: 20px">
+                <div
+                  style="font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-3); text-transform: uppercase; margin-bottom: 8px"
+                >
+                  Students
+                </div>
+                <div style="font-size: 32px; font-weight: 700; letter-spacing: -1px" id="supStatStudents">0</div>
+              </div>
+              <div class="section-card" style="padding: 20px">
+                <div
+                  style="font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-3); text-transform: uppercase; margin-bottom: 8px"
+                >
+                  Total Projects
+                </div>
+                <div style="font-size: 32px; font-weight: 700; letter-spacing: -1px" id="supStatProjects">0</div>
+              </div>
+              <div class="section-card" style="padding: 20px">
+                <div
+                  style="font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-3); text-transform: uppercase; margin-bottom: 8px"
+                >
+                  Reviewed
+                </div>
+                <div style="font-size: 32px; font-weight: 700; letter-spacing: -1px; color: #3d6b4f" id="supStatReviewed">0</div>
+              </div>
+              <div class="section-card" style="padding: 20px">
+                <div
+                  style="font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-3); text-transform: uppercase; margin-bottom: 8px"
+                >
+                  Pending Reviews
+                </div>
+                <div style="font-size: 32px; font-weight: 700; letter-spacing: -1px; color: var(--amber, #f59e0b)" id="supStatPending">0</div>
+              </div>
+            </div>
+            <!-- Recent activity -->
+            <div class="section-card">
+              <div class="section-head">
+                <div class="section-title">
+                  <div class="tdot" style="background: #3d6b4f"></div>
+                  Recent Student Projects
+                </div>
+              </div>
+              <table style="width: 100%; border-collapse: collapse" id="supRecentTable">
+                <tr style="border-bottom: 1px solid var(--border)">
+                  <th style="padding: 10px 16px; text-align: left; font-size: 12px; color: var(--text-3); font-weight: 500">Project</th>
+                  <th style="padding: 10px 16px; text-align: left; font-size: 12px; color: var(--text-3); font-weight: 500">Student</th>
+                  <th style="padding: 10px 16px; text-align: left; font-size: 12px; color: var(--text-3); font-weight: 500">Field</th>
+                  <th style="padding: 10px 16px; text-align: left; font-size: 12px; color: var(--text-3); font-weight: 500">Status</th>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── MY STUDENTS ─── -->
+        <div id="supScreenStudents" class="sup-screen" style="display: none">
+          <div style="padding: 28px 32px 0">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <div>
+                <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px">My Students</div>
+                <div style="font-size: 13px; color: var(--text-3)">Manage assigned students and view their projects</div>
+              </div>
+              <button class="btn btn-solid" style="background: #3d6b4f; gap: 6px" onclick="showAssignModal()">+ Assign Student</button>
+            </div>
+          </div>
+          <div style="padding: 24px 32px">
+            <div id="supStudentsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px">
+              <div style="color: var(--text-3); font-size: 13px; padding: 20px">No students assigned yet.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── REVIEWS ─── -->
+        <div id="supScreenReviews" class="sup-screen" style="display: none">
+          <div style="padding: 28px 32px 0">
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px">Project Reviews</div>
+            <div style="font-size: 13px; color: var(--text-3)">Review and grade student projects</div>
+          </div>
+          <div style="padding: 24px 32px">
+            <div id="supAllProjectsList"></div>
+          </div>
+        </div>
+
+        <!-- ─── PROFILE ─── -->
+        <div id="supScreenProfile" class="sup-screen" style="display: none">
+          <div style="padding: 28px 32px 0">
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px">My Profile</div>
+          </div>
+          <div style="padding: 24px 32px; max-width: 100%">
+            <div class="section-card" style="padding: 28px">
+              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px">
+                <div class="avatar" style="width: 56px; height: 56px; font-size: 20px; background: #1a1814" id="supProfileAvatar">SV</div>
+                <div>
+                  <div style="font-size: 18px; font-weight: 700" id="supProfileName">Supervisor</div>
+                  <div style="font-size: 13px; color: var(--text-3)" id="supProfileEmail">email</div>
+                </div>
+              </div>
+              <div style="display: grid; gap: 14px">
+                <div>
+                  <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Full Name</label>
+                  <input id="supProfName" class="form-input" style="width: 100%" />
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                  <div>
+                    <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Title</label>
+                    <select id="supProfTitle" class="form-select" style="width: 100%">
+                      <option>Dr.</option>
+                      <option>Prof.</option>
+                      <option>Eng.</option>
+                      <option>Mr.</option>
+                      <option>Ms.</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Department</label>
+                    <input id="supProfDept" class="form-input" style="width: 100%" />
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">University</label>
+                  <input id="supProfUniv" class="form-input" style="width: 100%" />
+                </div>
+                <button class="btn btn-solid" style="width: fit-content" onclick="supSaveProfile()">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Assign Student Modal -->
+    <div
+      id="assignModal"
+      style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.4); align-items: center; justify-content: center"
+    >
+      <div
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 28px;
+          width: 380px;
+          max-width: 94vw;
+        "
+      >
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 16px">Assign Student</div>
+        <div style="margin-bottom: 16px">
+          <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Student Email</label>
+          <input id="assignEmail" type="email" class="form-input" placeholder="student@university.edu" style="width: 100%" />
+        </div>
+        <div id="assignError" style="font-size: 12px; color: #b91c1c; margin-bottom: 10px; min-height: 16px"></div>
+        <div style="display: flex; gap: 10px">
+          <button class="btn btn-solid" style="flex: 1; justify-content: center; background: #3d6b4f" onclick="doAssignStudent()">Assign</button>
+          <button class="btn btn-outline" onclick="hideAssignModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div
+      id="reviewModal"
+      style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.4); align-items: center; justify-content: center"
+    >
+      <div
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 28px;
+          width: 480px;
+          max-width: 94vw;
+        "
+      >
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px" id="reviewModalTitle">Review Project</div>
+        <div style="font-size: 12px; color: var(--text-3); margin-bottom: 20px" id="reviewModalDesc"></div>
+        <div style="margin-bottom: 14px">
+          <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Grade</label>
+          <select id="reviewGrade" class="form-select" style="width: 100%">
+            <option>Pending</option>
+            <option>Excellent</option>
+            <option>Very Good</option>
+            <option>Good</option>
+            <option>Needs Revision</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 20px">
+          <label style="font-size: 12px; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 5px">Feedback</label>
+          <textarea
+            id="reviewFeedback"
+            class="form-input"
+            rows="4"
+            placeholder="Write your feedback for the student..."
+            style="width: 100%; resize: vertical"
+          ></textarea>
+        </div>
+        <input type="hidden" id="reviewProjectId" />
+        <div id="reviewError" style="font-size: 12px; color: #b91c1c; margin-bottom: 10px; min-height: 14px"></div>
+        <div style="display: flex; gap: 10px">
+          <button class="btn btn-solid" style="flex: 1; justify-content: center; background: #3d6b4f" onclick="submitReview()">Save Review</button>
+          <button class="btn btn-outline" onclick="hideReviewModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
