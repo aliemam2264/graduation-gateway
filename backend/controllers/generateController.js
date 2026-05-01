@@ -47,7 +47,7 @@ Return a JSON object with this exact structure:
   "expectedOutcome": "What the final product looks like",
   "novelty": "What makes this project unique",
   "challenges": ["challenge 1", "challenge 2", "challenge 3"],
-  // "qualityScore": ,
+  "qualityScore": ,
   "tags": ["tag1", "tag2", "tag3"]
 }`;
 

@@ -25,12 +25,23 @@ const formatSupervisor = (sup) => ({
 exports.register = async (req, res) => {
   try {
     const { name, email, password, department, university, title } = req.body;
-    if (!name || !email || !password) return res.status(400).json({ error: "Name, email, and password are required." });
+    if (!name || !email || !password)
+      return res
+        .status(400)
+        .json({ error: "Name, email, and password are required." });
 
     const exists = await Supervisor.findOne({ email });
-    if (exists) return res.status(409).json({ error: "Email already registered." });
+    if (exists)
+      return res.status(409).json({ error: "Email already registered." });
 
-    const sup = await Supervisor.create({ name, email, password, department, university, title });
+    const sup = await Supervisor.create({
+      name,
+      email,
+      password,
+      department,
+      university,
+      title,
+    });
     res.status(201).json({
       token: signToken(sup._id, "supervisor"),
       user: formatSupervisor(sup),
@@ -44,10 +55,14 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
+    if (!email || !password)
+      return res
+        .status(400)
+        .json({ error: "Email and password are required." });
 
     const sup = await Supervisor.findOne({ email }).select("+password");
-    if (!sup || !(await sup.comparePassword(password))) return res.status(401).json({ error: "Invalid email or password." });
+    if (!sup || !(await sup.comparePassword(password)))
+      return res.status(401).json({ error: "Invalid email or password." });
 
     res.json({
       token: signToken(sup._id, "supervisor"),
@@ -68,7 +83,7 @@ exports.getStudents = async (req, res) => {
   try {
     const sup = await Supervisor.findById(req.supervisor._id).populate(
       "students",
-      "name email major university plan generationsUsed generationsLimit supervisor createdAt"
+      "name email major university plan generationsUsed generationsLimit supervisor createdAt",
     );
     res.json({ students: sup.students });
   } catch (err) {
@@ -80,13 +95,15 @@ exports.getStudents = async (req, res) => {
 exports.assignStudent = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Student email required." });
+    if (!email)
+      return res.status(400).json({ error: "Student email required." });
 
     const student = await User.findOne({ email });
     if (!student) return res.status(404).json({ error: "Student not found." });
 
     const sup = await Supervisor.findById(req.supervisor._id);
-    if (sup.students.map(String).includes(String(student._id))) return res.status(409).json({ error: "Student already assigned." });
+    if (sup.students.map(String).includes(String(student._id)))
+      return res.status(409).json({ error: "Student already assigned." });
 
     sup.students.push(student._id);
     await sup.save();
@@ -107,10 +124,23 @@ exports.assignStudent = async (req, res) => {
 exports.removeStudent = async (req, res) => {
   try {
     const sup = await Supervisor.findById(req.supervisor._id);
-    sup.students = sup.students.filter((s) => String(s) !== req.params.studentId);
+
+    sup.students = sup.students.filter(
+      (s) => String(s) !== req.params.studentId,
+    );
+
+    const studentProjects = await Project.find({
+      user: req.params.studentId,
+    }).select("_id");
+
+    const projectIds = studentProjects.map((p) => String(p._id));
+
+    sup.reviewedProjects = sup.reviewedProjects.filter(
+      (r) => !projectIds.includes(String(r.project)),
+    );
+
     await sup.save();
 
-    // Clear student's supervisor field
     await User.findByIdAndUpdate(req.params.studentId, { supervisor: null });
 
     res.json({ message: "Student removed." });
@@ -125,10 +155,17 @@ exports.getStudentProjects = async (req, res) => {
   try {
     const sup = await Supervisor.findById(req.supervisor._id);
     const isAssigned = sup.students.map(String).includes(req.params.studentId);
-    if (!isAssigned) return res.status(403).json({ error: "This student is not assigned to you." });
+    if (!isAssigned)
+      return res
+        .status(403)
+        .json({ error: "This student is not assigned to you." });
 
-    const projects = await Project.find({ user: req.params.studentId }).sort("-createdAt").lean();
-    const student = await User.findById(req.params.studentId).select("name email major university").lean();
+    const projects = await Project.find({ user: req.params.studentId })
+      .sort("-createdAt")
+      .lean();
+    const student = await User.findById(req.params.studentId)
+      .select("name email major university")
+      .lean();
 
     // Build a lookup map: projectId → review
     const reviewMap = {};
@@ -160,7 +197,9 @@ exports.reviewProject = async (req, res) => {
 
     const sup = await Supervisor.findById(req.supervisor._id);
 
-    const existing = sup.reviewedProjects.find((r) => String(r.project) === req.params.projectId);
+    const existing = sup.reviewedProjects.find(
+      (r) => String(r.project) === req.params.projectId,
+    );
     if (existing) {
       existing.feedback = feedback ?? existing.feedback;
       existing.grade = grade;
@@ -174,8 +213,16 @@ exports.reviewProject = async (req, res) => {
       });
     }
     await sup.save();
+    await Project.findByIdAndUpdate(req.params.projectId, {
+      review: {
+        grade,
+        feedback: feedback || "",
+        reviewedAt: Date.now(),
+      },
+    });
 
-    const savedReview = existing || sup.reviewedProjects[sup.reviewedProjects.length - 1];
+    const savedReview =
+      existing || sup.reviewedProjects[sup.reviewedProjects.length - 1];
     res.json({ message: "Review saved.", review: savedReview });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -186,7 +233,9 @@ exports.reviewProject = async (req, res) => {
 exports.getProjectReview = async (req, res) => {
   try {
     const sup = await Supervisor.findById(req.supervisor._id);
-    const review = sup.reviewedProjects.find((r) => String(r.project) === req.params.projectId);
+    const review = sup.reviewedProjects.find(
+      (r) => String(r.project) === req.params.projectId,
+    );
     res.json({ review: review || null });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -199,12 +248,22 @@ exports.getStats = async (req, res) => {
     const sup = await Supervisor.findById(req.supervisor._id);
     const studentIds = sup.students;
 
-    const totalProjects = await Project.countDocuments({ user: { $in: studentIds } });
-    const doneProjects = await Project.countDocuments({ user: { $in: studentIds }, status: "done" });
-    const activeProjects = await Project.countDocuments({ user: { $in: studentIds }, status: "active" });
+    const totalProjects = await Project.countDocuments({
+      user: { $in: studentIds },
+    });
+    const doneProjects = await Project.countDocuments({
+      user: { $in: studentIds },
+      status: "done",
+    });
+    const activeProjects = await Project.countDocuments({
+      user: { $in: studentIds },
+      status: "active",
+    });
 
     // Only count reviews that are NOT Pending
-    const reviewedCount = sup.reviewedProjects.filter((r) => r.grade && r.grade !== "Pending").length;
+    const reviewedCount = sup.reviewedProjects.filter(
+      (r) => r.grade && r.grade !== "Pending",
+    ).length;
     const pendingReviews = Math.max(0, totalProjects - reviewedCount);
 
     const recentProjects = await Project.find({ user: { $in: studentIds } })
@@ -248,10 +307,14 @@ exports.updateProfile = async (req, res) => {
       if (req.body[f] !== undefined) updates[f] = req.body[f];
     });
 
-    const sup = await Supervisor.findByIdAndUpdate(req.supervisor._id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const sup = await Supervisor.findByIdAndUpdate(
+      req.supervisor._id,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
     res.json({ user: formatSupervisor(sup) });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -18,7 +18,11 @@ const projectSchema = new mongoose.Schema(
     },
     degreeLevel: {
       type: String,
-      enum: ["Undergraduate (Bachelor)", "Postgraduate (Master)", "PhD Research"],
+      enum: [
+        "Undergraduate (Bachelor)",
+        "Postgraduate (Master)",
+        "PhD Research",
+      ],
       default: "Undergraduate (Bachelor)",
     },
     description: {
@@ -44,15 +48,6 @@ const projectSchema = new mongoose.Schema(
       max: 10,
       default: null,
     },
-    // Full AI-generated content
-    fullProposal: {
-      type: String,
-      default: "",
-    },
-    roadmap: {
-      type: mongoose.Schema.Types.Mixed,
-      default: null,
-    },
     // User prompt/parameters used to generate
     generationParams: {
       type: mongoose.Schema.Types.Mixed,
@@ -63,8 +58,17 @@ const projectSchema = new mongoose.Schema(
       default: false,
     },
     tags: [String],
+    review: {
+      grade: {
+        type: String,
+        enum: ["Excellent", "Very Good", "Good", "Needs Revision", "Rejected"],
+        default: null,
+      },
+      feedback: { type: String, default: "" },
+      reviewedAt: { type: Date },
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Index for fast user queries
