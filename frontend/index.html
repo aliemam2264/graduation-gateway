@@ -275,7 +275,7 @@
           </div>
           <div class="nav-item" data-screen="projects" onclick="nav(this)"><span class="nav-icon">◫</span> My Projects</div>
           <div class="nav-item" data-screen="browse" onclick="nav(this)"><span class="nav-icon">◎</span> Browse Ideas</div>
-        <div class="nav-item" data-screen="reviews" onclick="nav(this)"><span class="nav-icon">◎</span> My Reviews</div>
+          <div class="nav-item" data-screen="reviews" onclick="nav(this)"><span class="nav-icon">◎</span> My Reviews</div>
         </div>
         <div class="nav-block">
           <div class="nav-label">Tools</div>
@@ -576,7 +576,7 @@
         </div>
 
         <!-- ████████ MY REVIEWS ████████ -->
-         <div id="screen-reviews" class="screen">
+        <div id="screen-reviews" class="screen">
           <div class="topbar">
             <div class="topbar-title">◎ My <em>Reviews</em></div>
           </div>
@@ -603,6 +603,16 @@
                   <div class="msg-time">Now</div>
                 </div>
               </div>
+            </div>
+            <div class="chat-input-bar">
+              <textarea
+                class="chat-textarea"
+                id="chatInput"
+                placeholder="Ask about your project, proposal writing, methodology…"
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+              ></textarea>
+              <button class="btn btn-solid" onclick="sendChat()">↑ Send</button>
             </div>
           </div>
         </div>

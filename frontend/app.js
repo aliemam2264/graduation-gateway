@@ -104,8 +104,7 @@ async function loadSupervisorsDropdown() {
     (d.supervisors || []).forEach((s) => {
       const opt = document.createElement("option");
       opt.value = s._id;
-      opt.textContent =
-        `${s.title || ""} ${s.name}${s.department ? " — " + s.department : ""}`.trim();
+      opt.textContent = `${s.title || ""} ${s.name}${s.department ? " — " + s.department : ""}`.trim();
       sel.appendChild(opt);
     });
   } catch (_) {}
@@ -138,12 +137,8 @@ function hideAuthModal() {
 function switchAuthTab(tab) {
   $("loginForm").style.display = tab === "login" ? "block" : "none";
   $("registerForm").style.display = tab === "register" ? "block" : "none";
-  document
-    .querySelectorAll(".auth-tab")
-    .forEach((t) => t.classList.remove("active"));
-  document
-    .querySelector(`.auth-tab[data-tab="${tab}"]`)
-    .classList.add("active");
+  document.querySelectorAll(".auth-tab").forEach((t) => t.classList.remove("active"));
+  document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add("active");
 }
 
 // ──────────── INIT ────────────
@@ -203,7 +198,7 @@ function renderDashRecentProjects(projects) {
       done: `<span class="badge badge-green">✓ Done</span>`,
       active: `<span class="badge badge-amber">⟳ Active</span>`,
       draft: `<span class="badge badge-grey">◌ Draft</span>`,
-    })[s] || `<span class="badge badge-grey">◌ Draft</span>`;
+    }[s] || `<span class="badge badge-grey">◌ Draft</span>`);
   t.innerHTML =
     `<tr><th>Project</th><th>Field</th><th>Status</th></tr>` +
     (projects.length
@@ -214,7 +209,7 @@ function renderDashRecentProjects(projects) {
           <td><b>${esc(p.title)}</b></td>
           <td><span style="color:var(--text-2);font-size:12px">${esc(p.field)}</span></td>
           <td>${badge(p.status)}</td>
-        </tr>`,
+        </tr>`
           )
           .join("")
       : `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--text-3)">
@@ -269,10 +264,10 @@ function renderActivityFeed(projects) {
     <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--border)">
       <div class="avatar" style="flex-shrink:0">${ini(state.user?.name)}</div>
       <div style="flex:1;font-size:13px;color:var(--text-2)"><strong style="color:var(--text)">You</strong> generated <strong style="color:var(--text)">${esc(
-        p.title,
+        p.title
       )}</strong></div>
       <div style="font-size:11px;font-family:'Geist Mono',monospace;color:var(--text-3)">${ago(p.createdAt)}</div>
-    </div>`,
+    </div>`
     )
     .join("");
 }
@@ -301,7 +296,7 @@ function renderDashRoadmap(stats) {
       <div class="tl-dot ${p.done ? "done" : p.cur ? "now" : "todo"}">${p.done ? "✓" : p.cur ? "→" : ""}</div>
       <div><div class="tl-title ${p.cur ? "tl-green" : ""}">${p.title}</div>
       <div class="tl-desc" ${p.cur ? 'style="color:var(--green)"' : ""}>${p.desc}</div></div>
-    </div>`,
+    </div>`
     )
     .join("");
 }
@@ -314,8 +309,7 @@ function renderSettingsUsage(stats) {
   setText("settingsGenUsed", `${used} / ${lim}`);
   setText("settingsPlan", u.plan === "pro" ? "Pro Plan" : "Free Plan");
   const bar = $("settingsGenBar");
-  if (bar)
-    bar.style.width = Math.min(Math.round((used / lim) * 100), 100) + "%";
+  if (bar) bar.style.width = Math.min(Math.round((used / lim) * 100), 100) + "%";
 }
 
 // ──────────── GENERATE ────────────
@@ -328,9 +322,7 @@ async function triggerGenerate() {
   const timeline = $("genTimeline")?.value || "1 Semester";
   const teamSize = $("genTeam")?.value || "Solo (1 person)";
   const interests = $("genInterests")?.value || "";
-  const keywords = [...document.querySelectorAll("#genTags .tag.active")]
-    .map((t) => t.textContent.trim())
-    .join(", ");
+  const keywords = [...document.querySelectorAll("#genTags .tag.active")].map((t) => t.textContent.trim()).join(", ");
 
   loading.classList.add("show");
   btn.disabled = true;
@@ -395,22 +387,20 @@ function renderGeneratedResult(g, project) {
               .map(
                 (o) =>
                   `<div style="font-size:13px;color:var(--text-2);margin-bottom:5px;display:flex;gap:6px"><span style="color:var(--green);flex-shrink:0">●</span>${esc(
-                    o,
-                  )}</div>`,
+                    o
+                  )}</div>`
               )
               .join("")}
           </div>
           <div>
             <div style="font-size:11px;font-family:'Geist Mono',monospace;color:var(--text-3);margin-bottom:8px;text-transform:uppercase">Tech Stack</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px">${(
-              g.technologies || []
-            )
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${(g.technologies || [])
               .map((t) => `<span class="badge badge-blue">${esc(t)}</span>`)
               .join("")}</div>
             ${
               g.novelty
                 ? `<div style="margin-top:12px;font-size:12px;color:var(--text-3)"><span style="color:var(--green);font-weight:600">✦ Novelty:</span> ${esc(
-                    g.novelty,
+                    g.novelty
                   )}</div>`
                 : ""
             }
@@ -418,7 +408,7 @@ function renderGeneratedResult(g, project) {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-solid" onclick="nav(document.querySelector('[data-screen=advisor]'));setTimeout(()=>{document.getElementById('chatInput').value='Tell me more about the project: ${esc(
-            g.title,
+            g.title
           ).replace(/'/g, "\\'")}';sendChat();},300)">◈ Ask Advisor</button>
           <button class="btn btn-outline" onclick="nav(document.querySelector('[data-screen=roadmap]'));setTimeout(()=>{document.getElementById('roadmapProjectSelect').value='${
             project._id
@@ -436,13 +426,7 @@ async function loadRecentGenerations() {
     if (!c) return;
     const ago = (dt) => {
       const h = Math.floor((Date.now() - new Date(dt)) / 3600000);
-      return h < 1
-        ? "Just now"
-        : h < 24
-          ? `${h}h ago`
-          : h < 168
-            ? `${Math.floor(h / 24)}d ago`
-            : `${Math.floor(h / 168)}w ago`;
+      return h < 1 ? "Just now" : h < 24 ? `${h}h ago` : h < 168 ? `${Math.floor(h / 24)}d ago` : `${Math.floor(h / 168)}w ago`;
     };
     c.innerHTML = d.projects.length
       ? d.projects
@@ -454,7 +438,7 @@ async function loadRecentGenerations() {
             onclick="nav(document.querySelector('[data-screen=projects]'))">
             <div style="font-size:13px;font-weight:500;margin-bottom:2px">${esc(p.title)}</div>
             <div style="font-size:11.5px;font-family:'Geist Mono',monospace;color:var(--text-3)">${esc(p.field)} · ${ago(p.createdAt)}</div>
-          </div>`,
+          </div>`
           )
           .join("")
       : `<div style="padding:20px;color:var(--text-3);font-size:13px;text-align:center">No generations yet.</div>`;
@@ -480,9 +464,8 @@ function renderProjectsTable(projects) {
       done: `<span class="badge badge-green">✓ Done</span>`,
       active: `<span class="badge badge-amber">⟳ Active</span>`,
       draft: `<span class="badge badge-grey">◌ Draft</span>`,
-    })[s] || `<span class="badge badge-grey">◌ Draft</span>`;
-  const fmt = (d) =>
-    new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }[s] || `<span class="badge badge-grey">◌ Draft</span>`);
+  const fmt = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
   t.innerHTML =
     `<tr><th>Project Title</th><th>Field</th><th>Level</th><th>Score</th><th>Status</th><th>Date</th><th></th></tr>` +
@@ -502,7 +485,7 @@ function renderProjectsTable(projects) {
             }')">✎</button>
             <button class="btn btn-outline" style="padding:4px 8px;font-size:11px;color:#b91c1c" onclick="deleteProject('${p._id}')">✕</button>
           </td>
-        </tr>`,
+        </tr>`
           )
           .join("")
       : `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-3)">
@@ -524,26 +507,16 @@ function renderProjectsTable(projects) {
 }
 
 function filterProjects(el, status) {
-  document
-    .querySelectorAll("#projectFilters .tag")
-    .forEach((t) => t.classList.remove("active"));
+  document.querySelectorAll("#projectFilters .tag").forEach((t) => t.classList.remove("active"));
   el.classList.add("active");
-  renderProjectsTable(
-    status ? state.projects.filter((p) => p.status === status) : state.projects,
-  );
+  renderProjectsTable(status ? state.projects.filter((p) => p.status === status) : state.projects);
 }
 function searchProjects(val) {
   const q = val.toLowerCase();
-  renderProjectsTable(
-    state.projects.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) || p.field.toLowerCase().includes(q),
-    ),
-  );
+  renderProjectsTable(state.projects.filter((p) => p.title.toLowerCase().includes(q) || p.field.toLowerCase().includes(q)));
 }
 async function cycleStatus(id, cur) {
-  const next =
-    { draft: "active", active: "done", done: "draft" }[cur] || "active";
+  const next = { draft: "active", active: "done", done: "draft" }[cur] || "active";
   try {
     await apiFetch(`/projects/${id}`, {
       method: "PATCH",
@@ -722,19 +695,14 @@ function loadBrowseIdeas() {
 }
 function filterBrowse(el, filter) {
   browseFilter = filter;
-  document
-    .querySelectorAll("#browseFilters .tag")
-    .forEach((t) => t.classList.remove("active"));
+  document.querySelectorAll("#browseFilters .tag").forEach((t) => t.classList.remove("active"));
   el.classList.add("active");
   renderBrowseIdeas(filter);
 }
 function renderBrowseIdeas(filter) {
   const grid = $("browseGrid");
   if (!grid) return;
-  const filtered =
-    filter === "all"
-      ? BROWSE_IDEAS
-      : BROWSE_IDEAS.filter((i) => i.tags.includes(filter));
+  const filtered = filter === "all" ? BROWSE_IDEAS : BROWSE_IDEAS.filter((i) => i.tags.includes(filter));
   const lvlBadge = {
     Bachelor: "badge-grey",
     Master: "badge-blue",
@@ -753,7 +721,7 @@ function renderBrowseIdeas(filter) {
         <span class="badge ${lvlBadge[idea.level] || "badge-grey"}">${idea.level}</span>
       </div>
       <div style="margin-top:10px;font-size:11.5px;color:var(--green);font-weight:500">Click to generate full project →</div>
-    </div>`,
+    </div>`
     )
     .join("");
 }
@@ -763,16 +731,13 @@ function generateFromIdea(title, field) {
   const fi = $("genField");
   if (fi) {
     [...fi.options].forEach((o) => {
-      if (o.text.includes(field.split("/")[0].trim()) || o.value === field)
-        o.selected = true;
+      if (o.text.includes(field.split("/")[0].trim()) || o.value === field) o.selected = true;
     });
   }
   const ti = $("genInterests");
   if (ti) ti.value = `I want to work on: ${title}`;
   setTimeout(() => {
-    document
-      .querySelector("#screen-generate .btn-green")
-      ?.scrollIntoView({ behavior: "smooth", block: "end" });
+    document.querySelector("#screen-generate .btn-green")?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, 200);
   showToast(`✓ Idea loaded — click Generate to create the full project.`);
 }
@@ -793,9 +758,7 @@ async function loadReviews() {
 
     const data = await res.json();
 
-    const reviewedProjects = (data.projects || []).filter(
-      (p) => p.review && p.review.grade,
-    );
+    const reviewedProjects = (data.projects || []).filter((p) => p.review && p.review.grade);
 
     if (reviewedProjects.length === 0) {
       container.innerHTML = "<p>No reviews yet.</p>";
@@ -829,7 +792,7 @@ async function loadReviews() {
 
     </div>
   </div>
-`,
+`
       )
       .join("");
   } catch (err) {
@@ -840,18 +803,14 @@ async function loadReviews() {
 
 function nav(el) {
   // remove active
-  document
-    .querySelectorAll(".nav-item")
-    .forEach((i) => i.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
 
   el.classList.add("active");
 
   const screen = el.getAttribute("data-screen");
 
   // hide all
-  document
-    .querySelectorAll(".screen")
-    .forEach((s) => s.classList.add("hidden"));
+  document.querySelectorAll(".screen").forEach((s) => s.classList.add("hidden"));
 
   // show selected
   const activeScreen = document.getElementById(screen + "-screen");
@@ -874,7 +833,7 @@ async function sendChat() {
     container,
     "user",
     `<div class="avatar" style="flex-shrink:0">${initials}</div>
-    <div><div class="msg-bubble">${esc(msg)}</div><div class="msg-time">${nowTime()}</div></div>`,
+    <div><div class="msg-bubble">${esc(msg)}</div><div class="msg-time">${nowTime()}</div></div>`
   );
   input.value = "";
   container.scrollTop = container.scrollHeight;
@@ -884,7 +843,7 @@ async function sendChat() {
     container,
     "ai",
     `<div class="avatar av-green" style="flex-shrink:0">AI</div>
-    <div><div class="msg-bubble" id="${typingId}"><div class="loader-dots"><span></span><span></span><span></span></div></div></div>`,
+    <div><div class="msg-bubble" id="${typingId}"><div class="loader-dots"><span></span><span></span><span></span></div></div></div>`
   );
   container.scrollTop = container.scrollHeight;
 
@@ -900,7 +859,7 @@ async function sendChat() {
       container,
       "ai",
       `<div class="avatar av-green" style="flex-shrink:0">AI</div>
-      <div><div class="msg-bubble">${fmtAI(d.reply)}</div><div class="msg-time">${nowTime()}</div></div>`,
+      <div><div class="msg-bubble">${fmtAI(d.reply)}</div><div class="msg-time">${nowTime()}</div></div>`
     );
   } catch (e) {
     const typingEl = document.getElementById(typingId);
@@ -909,7 +868,7 @@ async function sendChat() {
       container,
       "ai",
       `<div class="avatar av-green" style="flex-shrink:0">AI</div>
-      <div><div class="msg-bubble" style="color:var(--amber)">⚠ ${esc(e.message)}</div></div>`,
+      <div><div class="msg-bubble" style="color:var(--amber)">⚠ ${esc(e.message)}</div></div>`
     );
   }
   container.scrollTop = container.scrollHeight;
@@ -924,8 +883,7 @@ function appendMsg(container, role, html) {
 
 function clearChat() {
   state.currentSessionId = null;
-  $("chatMessages").innerHTML =
-    `<div class="msg ai"><div class="avatar av-green" style="flex-shrink:0">AI</div>
+  $("chatMessages").innerHTML = `<div class="msg ai"><div class="avatar av-green" style="flex-shrink:0">AI</div>
     <div><div class="msg-bubble">Chat cleared. How can I help you with your graduation project?</div>
     <div class="msg-time">${nowTime()}</div></div></div>`;
 }
@@ -943,8 +901,8 @@ async function populateRoadmapSelect() {
         .map(
           (p) =>
             `<option value="${p._id}" data-field="${esc(p.field)}" data-desc="${esc(p.description || "")}" data-tech="${esc(
-              (p.technologies || []).join(","),
-            )}">${esc(p.title)}</option>`,
+              (p.technologies || []).join(",")
+            )}">${esc(p.title)}</option>`
         )
         .join("");
     if (current) sel.value = current;
@@ -977,9 +935,7 @@ async function generateRoadmap() {
     return;
   }
 
-  const project = projectId
-    ? state.projects.find((p) => p._id === projectId)
-    : null;
+  const project = projectId ? state.projects.find((p) => p._id === projectId) : null;
   const title = project?.title || customTitle;
   const field = project?.field || "Computer Science";
   const description = project?.description || "";
@@ -1078,7 +1034,7 @@ function renderRoadmapOutput(roadmap, title) {
       <td><span class="badge badge-blue">W${m.week}</span></td>
       <td><b>${esc(m.milestone)}</b></td>
       <td style="color:var(--text-2);font-size:12px">${esc(m.description)}</td>
-    </tr>`,
+    </tr>`
         )
         .join("");
 
@@ -1094,7 +1050,7 @@ function renderRoadmapOutput(roadmap, title) {
         <span class="badge ${r.probability === "high" ? "badge-amber" : "badge-grey"}">${esc(r.probability || "medium")}</span>
       </div>
       <div style="font-size:12px;color:var(--text-2)">${esc(r.mitigation)}</div>
-    </div>`,
+    </div>`
       )
       .join("");
 
@@ -1123,9 +1079,7 @@ function copyRoadmap() {
       text += `• ${r.risk} → ${r.mitigation}\n`;
     });
   }
-  navigator.clipboard
-    .writeText(text)
-    .then(() => showToast("✓ Roadmap copied to clipboard."));
+  navigator.clipboard.writeText(text).then(() => showToast("✓ Roadmap copied to clipboard."));
 }
 
 // ──────────── PROFILE ────────────
@@ -1154,8 +1108,7 @@ function renderProfile() {
   if (pb) pb.style.width = Math.min(Math.round((used / lim) * 100), 100) + "%";
   setText("profileProjectCount", state.projects.length || "0");
   const ppb = $("profileProjectBar");
-  if (ppb)
-    ppb.style.width = Math.min((state.projects.length / 20) * 100, 100) + "%";
+  if (ppb) ppb.style.width = Math.min((state.projects.length / 20) * 100, 100) + "%";
 }
 
 async function saveProfile() {
@@ -1189,16 +1142,13 @@ async function saveProfile() {
   }
 }
 
-document.getElementById("profileSupervisor").value =
-  state.user?.supervisor || "";
+document.getElementById("profileSupervisor").value = state.user?.supervisor || "";
 // ──────────── NAVIGATION ────────────
 function nav(el) {
   const id = el?.dataset?.screen;
   if (!id) return;
 
-  document
-    .querySelectorAll(".nav-item")
-    .forEach((i) => i.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
   el.classList.add("active");
 
   document.querySelectorAll(".screen").forEach((s) => {
@@ -1206,9 +1156,7 @@ function nav(el) {
     s.classList.add("hidden");
   });
 
-  const screen =
-    document.getElementById("screen-" + id) ||
-    document.getElementById(id + "-screen");
+  const screen = document.getElementById("screen-" + id) || document.getElementById(id + "-screen");
 
   if (screen) {
     screen.classList.add("active");
@@ -1306,22 +1254,19 @@ function selectRole(role) {
 
   if (role === "student") {
     studentCard.style.border = "2px solid var(--green)";
-    studentCard.style.background =
-      "color-mix(in srgb,var(--green) 8%,transparent)";
+    studentCard.style.background = "color-mix(in srgb,var(--green) 8%,transparent)";
     supervisorCard.style.border = "2px solid var(--border)";
     supervisorCard.style.background = "";
     registerTabBtn.style.display = "";
   } else {
     supervisorCard.style.border = "2px solid #3d6b4f";
-    supervisorCard.style.background =
-      "color-mix(in srgb,#3d6b4f 8%,transparent)";
+    supervisorCard.style.background = "color-mix(in srgb,#3d6b4f 8%,transparent)";
     studentCard.style.border = "2px solid var(--border)";
     studentCard.style.background = "";
     registerTabBtn.style.display = "";
   }
   // Re-render current tab for the chosen role
-  const activeTab =
-    document.querySelector(".auth-tab.active")?.dataset?.tab || "login";
+  const activeTab = document.querySelector(".auth-tab.active")?.dataset?.tab || "login";
   switchAuthTab(activeTab);
 }
 
@@ -1335,15 +1280,12 @@ switchAuthTab = function (tab) {
     if (el) el.style.display = "none";
   });
 
-  document
-    .querySelectorAll(".auth-tab")
-    .forEach((t) => t.classList.remove("active"));
+  document.querySelectorAll(".auth-tab").forEach((t) => t.classList.remove("active"));
   const tabEl = document.querySelector(`.auth-tab[data-tab="${tab}"]`);
   if (tabEl) tabEl.classList.add("active");
 
   if (currentRole === "student") {
-    if (tab === "login")
-      document.getElementById("loginForm").style.display = "block";
+    if (tab === "login") document.getElementById("loginForm").style.display = "block";
     else {
       document.getElementById("registerForm").style.display = "block";
       // Load supervisors dropdown when register form opens
@@ -1351,8 +1293,7 @@ switchAuthTab = function (tab) {
       if (sel && sel.options.length <= 1) loadSupervisorsDropdown();
     }
   } else {
-    if (tab === "login")
-      document.getElementById("supLoginForm").style.display = "block";
+    if (tab === "login") document.getElementById("supLoginForm").style.display = "block";
     else document.getElementById("supRegisterForm").style.display = "block";
   }
 };
@@ -1478,9 +1419,7 @@ async function initSupervisorApp() {
   const u = state.user;
   document.getElementById("supSidebarAvatar").textContent = ini(u.name);
   document.getElementById("supSidebarName").textContent = u.name;
-  document.getElementById("supWelcomeName").textContent = u.title
-    ? `${u.title} ${u.name.split(" ")[0]}`
-    : u.name.split(" ")[0];
+  document.getElementById("supWelcomeName").textContent = u.title ? `${u.title} ${u.name.split(" ")[0]}` : u.name.split(" ")[0];
   document.getElementById("supProfileName").textContent = u.name;
   document.getElementById("supProfileEmail").textContent = u.email;
   document.getElementById("supProfileAvatar").textContent = ini(u.name);
@@ -1494,14 +1433,10 @@ async function initSupervisorApp() {
 
 // ── Navigation ───────────────────────────────────────
 function supNav(screenId, el) {
-  document
-    .querySelectorAll(".sup-screen")
-    .forEach((s) => (s.style.display = "none"));
+  document.querySelectorAll(".sup-screen").forEach((s) => (s.style.display = "none"));
   const screen = document.getElementById(screenId);
   if (screen) screen.style.display = "block";
-  document
-    .querySelectorAll(".sup-nav-item")
-    .forEach((n) => n.classList.remove("sup-nav-active"));
+  document.querySelectorAll(".sup-nav-item").forEach((n) => n.classList.remove("sup-nav-active"));
   if (el) el.classList.add("sup-nav-active");
   // lazy load
   if (screenId === "supScreenStudents") supLoadStudents();
@@ -1531,7 +1466,7 @@ function renderSupRecentTable(projects) {
       done: `<span class="badge badge-green">✓ Done</span>`,
       active: `<span class="badge badge-amber">⟳ Active</span>`,
       draft: `<span class="badge badge-grey">◌ Draft</span>`,
-    })[s] || `<span class="badge badge-grey">◌ Draft</span>`;
+    }[s] || `<span class="badge badge-grey">◌ Draft</span>`);
 
   const gradeClass = (g) =>
     ({
@@ -1540,7 +1475,7 @@ function renderSupRecentTable(projects) {
       Good: "grade-good",
       "Needs Revision": "grade-revision",
       Rejected: "grade-rejected",
-    })[g] || "grade-pending";
+    }[g] || "grade-pending");
 
   const rows = projects.length
     ? projects
@@ -1554,7 +1489,7 @@ function renderSupRecentTable(projects) {
         <td style="padding:10px 16px">
           <span class="grade-badge ${gradeClass(p.reviewGrade)}">${p.reviewGrade || "Pending"}</span>
         </td>
-      </tr>`,
+      </tr>`
         )
         .join("")
     : `<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--text-3);font-size:13px">No student projects yet.</td></tr>`;
@@ -1611,11 +1546,11 @@ function renderStudentCards(students) {
         ${s.generationsUsed ?? 0} / ${s.generationsLimit ?? 10} generations used
       </div>
       <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:12px" onclick="supViewStudentProjects('${s._id}','${esc(
-        s.name,
+        s.name
       )}')">
         View Projects →
       </button>
-    </div>`,
+    </div>`
     )
     .join("");
 }
@@ -1624,10 +1559,7 @@ async function supViewStudentProjects(studentId, studentName) {
   try {
     const d = await supFetch(`/students/${studentId}/projects`);
     // Switch to reviews screen and show that student's projects
-    supNav(
-      "supScreenReviews",
-      document.querySelector(".sup-nav-item:nth-child(6)"),
-    );
+    supNav("supScreenReviews", document.querySelector(".sup-nav-item:nth-child(6)"));
     renderProjectReviewCards(d.projects || [], studentName);
   } catch (e) {
     showToast("✗ " + e.message, "error");
@@ -1683,8 +1615,9 @@ async function supLoadAllProjects() {
     const d = await supFetch("/students");
     const students = d.students || [];
     if (!students.length) {
-      document.getElementById("supAllProjectsList").innerHTML =
-        `<div style="color:var(--text-3);font-size:13px;padding:20px">No students assigned yet. <a style="color:#3d6b4f;cursor:pointer;font-weight:500" onclick="supNav('supScreenStudents',null)">Assign students →</a></div>`;
+      document.getElementById(
+        "supAllProjectsList"
+      ).innerHTML = `<div style="color:var(--text-3);font-size:13px;padding:20px">No students assigned yet. <a style="color:#3d6b4f;cursor:pointer;font-weight:500" onclick="supNav('supScreenStudents',null)">Assign students →</a></div>`;
       return;
     }
     // Fetch all students' projects in parallel — review data is already merged by the API
@@ -1692,8 +1625,8 @@ async function supLoadAllProjects() {
       students.map((s) =>
         supFetch(`/students/${s._id}/projects`)
           .then((r) => ({ student: r.student, projects: r.projects }))
-          .catch(() => null),
-      ),
+          .catch(() => null)
+      )
     );
     let allProjects = [];
     results.filter(Boolean).forEach((r) => {
@@ -1702,7 +1635,7 @@ async function supLoadAllProjects() {
           ...p,
           studentName: r.student?.name || "—",
           // review is now a property on the project object from the API
-        }),
+        })
       );
     });
     renderProjectReviewCards(allProjects, null);
@@ -1733,7 +1666,7 @@ function renderProjectReviewCards(projects, filterName) {
       Good: "grade-good",
       "Needs Revision": "grade-revision",
       Rejected: "grade-rejected",
-    })[g] || "grade-pending";
+    }[g] || "grade-pending");
 
   c.innerHTML =
     header +
@@ -1813,10 +1746,7 @@ function openReviewModal(projectId, title, existingGrade, existingFeedback) {
   document.getElementById("reviewGrade").value = existingGrade || "Pending";
   document.getElementById("reviewFeedback").value = existingFeedback || "";
   document.getElementById("reviewError").textContent = "";
-  document.getElementById("reviewModalDesc").textContent =
-    existingGrade && existingGrade !== "Pending"
-      ? "Editing existing review."
-      : "";
+  document.getElementById("reviewModalDesc").textContent = existingGrade && existingGrade !== "Pending" ? "Editing existing review." : "";
 }
 function hideReviewModal() {
   document.getElementById("reviewModal").style.display = "none";
